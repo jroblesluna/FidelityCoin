@@ -37,7 +37,6 @@ async function deployNftPrices(nftContractAddress) {
 
 async function deployContracts() {
   await console.log("🙏 Deploying Contracts");
-  var relayerAddress = ethers.utils.getAddress("0x70f26499b849168744f4fb8fd8cce7b08c458e42");
   var ipfsCID = "QmSA58qFqb8m66e4vCWx6UcJAuq7Lt3zLU8EyGDXwDyCTc";
   var nftContractName = "FidelityNFT";
   var nftContractTitle = "Fidelity NFT";
@@ -54,18 +53,13 @@ async function deployContracts() {
   await (console.log(`📝 ${nftContractName} Contract Addr: ${nftContract.address} 🟢 Configure in AutoTask`));
   var nftImplementation = await printAddress(`📣 ${nftContractName}`, nftContract.address);
   // set up
-  var exResult = await ex(nftContract, "grantRole", [MINTER_ROLE, relayerAddress], "🤬 Error Granting Role");
-  if (exResult.events[0].args["role"] == MINTER_ROLE && exResult.events[0].args["account"] == relayerAddress) {
-    console.log(`✅ Address ${relayerAddress} has MINTER_ROLE granted`);
-  }
-  else {
-    console.log(`❌ Address ${relayerAddress} has NOT MINTER_ROLE granted`);
-  }
+
   await verify(nftImplementation, `🔎 ${nftContractName}`, []);
 
   await deployNftPrices(nftContract.address);
 
-  var gnosis = { address: ethers.utils.getAddress("0xed76c29D4B1fE37e101eAe4E02Fc3633f8aa86cd") };//OWNER WALLET
+  var gnosis = { address: ethers.utils.getAddress("0xed76c29D4B1fE37e101eAe4E02Fc3633f8aa86cd") };
+  //OWNER WALLET BEING USED INSTEAD OF GNOSIS BECAUSE OF CURRENT HIGH FEES OF GOERLI AND GNOSIS HAS NOT MUMBAI ENABLED
 
 
   var fidelityContractName = "FidelityCoin";

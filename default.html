@@ -27,6 +27,7 @@
         <span id="fidoSecondsToExpire"></span>
         <br/>
         <button id="fidoUpdate">Refresh</button>
+        <span id="fidoBalanceError" style="color: red;"></span>
     </div>
     </br>
 
@@ -36,20 +37,39 @@
         <label for="airdropAddressInput">Airdrop Address</label>
         <input type="text" id="airdropAddressInput" name="airdropAddressInput">
         <br/>
-        <label for="airdropAmountInput">Product Purchase Amount in Fiat (Soles)</label>
+        <label for="airdropAmountInput">Buyer's Purchase Paid Amount in Fiat (Soles)</label>
         <input type="text" id="airdropAmountInput" name="airdropAmountInput">
         <br/>
         <button id="airdropButton">Airdrop To Buyer</button>
         <br/>
+        <span id="airdropResult" style="color: green;"></span>
+        <br/>
         <span id="airdropError" style="color: red;"></span>
     </div>
 
+    <h2>Query NFT Price in FIDOs</h2>
+    </br>
+    <div>
+        <label for="queryInput">Query By Id</label>
+        <input type="text" id="queryInput" name="queryInput">
+        <br/>
+        <label for="queryResult">NFT Price:</label>
+        <span id="queryResult" name="queryResult"></span>
+        <br/>
+        <button id="queryButton">Query</button>
+        <br/>
+        <span id="queryError" style="color: red;"></span>
+    </div>
+
+    </br>
     <h2>Redeem NFT with FIDO</h2>
     </br>
     <div>
         <label for="purchaseInput">Purchase By Id</label>
         <input type="text" id="purchaseInput" name="purchaseInput">
+        <br/>
         <button id="purchaseButton">Purchase</button>
+        <br/>
         <span id="purchaseError" style="color: red;"></span>
     </div>
 

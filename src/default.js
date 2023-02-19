@@ -74,6 +74,10 @@ function addListenerFIDObalance() {
   console.log("Adding Listener for FIDO Balance");
   var fidoUpdateButton = document.getElementById("fidoUpdate");
   fidoUpdateButton.addEventListener("click", async function () {
+    document.getElementById("fidoBalanceError").innerHTML = "";
+    if (signer){
+    document.getElementById("fidoBalance").innerHTML = "";
+    document.getElementById("fidoSecondsToExpire").innerHTML = "";
     console.log("FIDO Balance Button Clicked");
     console.log("Getting Balance...");
     var balance = await fidelityCoinContract.balanceOf(account);
@@ -81,6 +85,10 @@ function addListenerFIDObalance() {
     console.log("Getting Seconds...");
     var secondsToExpire = await fidelityCoinContract.secondsToExpire(account);
     document.getElementById("fidoSecondsToExpire").innerHTML = secondsToExpire;
+    }
+    else{
+      document.getElementById("fidoBalanceError").innerHTML = "Error: Debe iniciar sesión";
+    }
   })
 }
 
@@ -92,15 +100,41 @@ function addListenerAirdropBuyer() {
     document.getElementById("airdropError").innerHTML = "";
     var address = document.getElementById("airdropAddressInput").value;
     var amount = document.getElementById("airdropAmountInput").value;
-    console.log("Airdropping:", address, amount);
-    var txAirdrop = await airdropContract
-      .connect(signer)
-      .participateInAirdropFC(address, amount)
-      .catch((err) => {
-        document.getElementById("airdropError").innerHTML = "Error: " + err.message;
-      });
-    var response = await txAirdrop.wait(1);
-    console.log(response.transactionHash);
+    if (signer && address != "" && amount > 0) {
+      console.log("Airdropping:", address, amount);
+      var txAirdrop = await airdropContract
+        .connect(signer)
+        .participateInAirdropFC(address, amount)
+        .catch((err) => {
+          document.getElementById("airdropError").innerHTML = "Error: " + err.message;
+        });
+      var response = await txAirdrop.wait(1);
+      console.log(response);
+      document.getElementById("airdropResult").innerHTML = response.transactionHash;
+    }
+    else {
+      document.getElementById("airdropError").innerHTML = "Error: Debe iniciar sesión y colocar Datos Válidos";
+    }
+  })
+}
+
+function addListenerQueryNftPriceById() {
+  console.log("Adding Listener for Query Button");
+  var queryButton = document.getElementById("queryButton");
+  queryButton.addEventListener("click", async function () {
+    console.log("Query By Id Button Clicked");
+    document.getElementById("queryResult").innerHTML = "";
+    document.getElementById("queryError").innerHTML = "";
+    var tokenId = document.getElementById("queryInput").value;
+    console.log("Token:", tokenId);
+    if (tokenId > 0 && tokenId < 53) {
+      console.log("Iniciando TX. Espere...");
+      var nftPriceById = await fidelityNftContract.getNftPriceById(tokenId);
+      document.getElementById("queryResult").innerHTML = `${nftPriceById} FIDO`;
+    }
+    else {
+      document.getElementById("queryError").innerHTML = "Error: Debe colocar un Token Válido";
+    }
   })
 }
 
@@ -112,68 +146,19 @@ function addListenerPurchaseById() {
     document.getElementById("purchaseError").innerHTML = "";
     var tokenId = document.getElementById("purchaseInput").value;
     console.log("Token:", tokenId);
-    console.log("Iniciando TX. Espere...");
-    if (signer && tokenId>0 && tokenId<53){
-    var txPurchase = await purchaseCoinContract
-      .connect(signer)
-      .purchaseNftById(tokenId)
-      .catch((err) => {
-        document.getElementById("purchaseError").innerHTML = "Error: " + err.message;
-      });
-    var response = await txPurchase.wait(1);
-    console.log(response.transactionHash);
-    }
-    else{
-      document.getElementById("purchaseError").innerHTML = "Error: Debe iniciar sesión y colocar un Token Válido";
-    }
-  })
-}
-
-function addListenerPurchaseWithEth() {
-  console.log("Adding Listener for Purchase With Eth Button");
-  var purchaseEthButton = document.getElementById("purchaseEthButton");
-  purchaseEthButton.addEventListener("click", async function () {
-    console.log("Purchase With Eth Button Clicked");
-    document.getElementById("purchaseEthError").innerHTML = "";
-    console.log("Iniciando TX. Espere...");
-    if (signer){
-    var txPurchaseWithEth = await pubSContract
-      .connect(signer)
-      .depositEthForARandomNft({
-        value: BigNumber.from("10000000000000000")
-      })
-      .catch((err) => {
-        document.getElementById("purchaseEthError").innerHTML = "Error: " + err.message;
-      });
-    var response = await txPurchaseWithEth.wait(1);
-    console.log(response.transactionHash);
-    }
-    else{
-      document.getElementById("purchaseEthError").innerHTML = "Error: Debe iniciar sesión";
-    }
-  })
-}
-
-function addListenerSendEth() {
-  console.log("Adding Listener for Send Ether Button");
-  var sendEtherButton = document.getElementById("sendEtherButton");
-  sendEtherButton.addEventListener("click", async function () {
-    console.log("Send Ether Button Clicked");
-    document.getElementById("sendEtherError").innerHTML = "";
-    console.log("Iniciando TX. Espere...");
-    if (signer) {
-      var txSendEther = await signer.sendTransaction({
-        to: pubSContractAdd,
-        value: BigNumber.from("10000000000000000")
-      })
+    if (signer && tokenId > 0 && tokenId < 53) {
+      console.log("Iniciando TX. Espere...");
+      var txPurchase = await purchaseCoinContract
+        .connect(signer)
+        .purchaseNftById(tokenId)
         .catch((err) => {
-          document.getElementById("sendEtherError").innerHTML = "Error: " + err.message;
+          document.getElementById("purchaseError").innerHTML = "Error: " + err.message;
         });
-      var response = await txSendEther.wait(1);
+      var response = await txPurchase.wait(1);
       console.log(response.transactionHash);
     }
     else {
-      document.getElementById("sendEtherError").innerHTML = "Error: Debe iniciar sesión";
+      document.getElementById("purchaseError").innerHTML = "Error: Debe iniciar sesión y colocar un Token Válido";
     }
   })
 }
@@ -183,16 +168,16 @@ function setUpListeners() {
   addListenerConnectToMetamask();
   addListenerFIDObalance();
   addListenerAirdropBuyer();
-  //addListenerApprove();
+  addListenerQueryNftPriceById();
   addListenerPurchaseById();
   //addListenerPurchaseWithEth();
   //addListenerSendEth();
 }
 
 function setUpEventsContracts() {
-  fidelityNftContract.on ("Transfer",(from,to,tokenId)=>{
+  fidelityNftContract.on("Transfer", (from, to, tokenId) => {
     document.getElementById("nftList")
-      .innerHTML=`<div>Transfer from: ${from} to: ${to} Token: ${tokenId}</div>`+document.getElementById("nftList").innerHTML;
+      .innerHTML = `<div>Transfer from: ${from} to: ${to} Token: ${tokenId}</div>` + document.getElementById("nftList").innerHTML;
   })
 }
 
@@ -200,7 +185,7 @@ function setUpEventsContracts() {
 async function setUp() {
   //console.log("init(window.ethereum)");
   //init(window.ethereum);
-  console.log("initSCsGoerli()");
+  console.log("initSmartContracts()");
   initSmartContracts();
   console.log("setUpListeners()");
   await setUpListeners();
