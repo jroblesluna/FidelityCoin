@@ -37,11 +37,11 @@ async function deployNftPrices(nftContractAddress) {
 
 async function deployContracts() {
   await console.log("🙏 Deploying Contracts");
-  var ipfsCID = "QmSA58qFqb8m66e4vCWx6UcJAuq7Lt3zLU8EyGDXwDyCTc";
+  var ipfsCID = "QmSA58qFqb8m66e4vCWx6UcJAuq7Lt3zLU8EyGDXwDyCTc";//UPDATE IF NEEDED
   var nftContractName = "FidelityNFT";
   var nftContractTitle = "Fidelity NFT";
   var nftSymbol = "FIDONFT";
-  var lastNftId = 52;
+  var lastNftId = 52;//UPDATE IF NEEDED
 
   console.log(`🥚 Deploying ${nftContractName}`);
   console.log(`👉 Variable nftContractName: ${nftContractName}`);
@@ -58,23 +58,23 @@ async function deployContracts() {
 
   await deployNftPrices(nftContract.address);
 
-  var gnosis = { address: ethers.utils.getAddress("0xed76c29D4B1fE37e101eAe4E02Fc3633f8aa86cd") };
+  var gnosis = { address: ethers.utils.getAddress("0xed76c29D4B1fE37e101eAe4E02Fc3633f8aa86cd") };//UPDATE IF NEEDED
   //OWNER WALLET BEING USED INSTEAD OF GNOSIS BECAUSE OF CURRENT HIGH FEES OF GOERLI AND GNOSIS HAS NOT MUMBAI ENABLED
 
 
   var fidelityContractName = "FidelityCoin";
   var fidelityToken = "FidelityCoin";
   var fidelitySymbol = "FIDO";
-  var fidelityExpirationPeriod = 60; //Starts With 60 seconds for testing purposes
+  var fidelityExpirationPeriod = 60; //Starts With 60 seconds for testing purposes. UPDATE IF NEEDED
   console.log(`🥚 Deploying ${fidelityContractName}`);
   console.log(`👉 Variable fidelityContractName: ${fidelityContractName}`);
   console.log(`👉 Variable fidelityToken: ${fidelityToken}`);
   console.log(`👉 Variable fidelitySymbol: ${fidelitySymbol}`);
   console.log(`👉 Variable fidelityExpirationPeriod: ${fidelityExpirationPeriod}`);
-  var fidelityContract = await deploySC(fidelityContractName, [/*fidelityToken, fidelitySymbol, fidelityExpirationPeriod*/]);
+  var fidelityContract = await deploySC(fidelityContractName, [fidelityToken, fidelitySymbol, fidelityExpirationPeriod]);
   console.log(`📝 ${fidelityContractName} Contract Addr: ${fidelityContract.address}`);
   var fidelityImplementation = await printAddress(`📣 ${fidelityContractName}`, fidelityContract.address);
-  await verify(fidelityImplementation, `🔎 ${fidelityContractName}`, [/*fidelityToken, fidelitySymbol*/]);
+  await verify(fidelityImplementation, `🔎 ${fidelityContractName}`, []);
 
   var airdropFidelityContractName = "AirdropFidelityCoin";
   console.log(`🥚 Deploying ${airdropFidelityContractName}`);
@@ -96,9 +96,9 @@ async function deployContracts() {
 
 
 
-
+  console.log(`🥚 Deploying PurchaseCoin`);
   purchaseCoinContract = await deploySC("PurchaseCoin", []);
-  var implementation = await printAddress("PurchaseCoin", purchaseCoinContract.address);
+  var implementation = await printAddress("📣 PurchaseCoin", purchaseCoinContract.address);
   await ex(purchaseCoinContract, "setFidelityCoin", [fidelityContract.address], "GR");
   await ex(purchaseCoinContract, "setFidelityNFT", [nftContract.address], "GR");
   await ex(purchaseCoinContract, "setGnosisWallet", [gnosis.address], "GR");

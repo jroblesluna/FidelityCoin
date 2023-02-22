@@ -5,7 +5,7 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "hardhat/console.sol";
+//import "hardhat/console.sol";
 interface IFidelityCoin {
     
     function approve(address spender, uint256 amount) external returns (bool);
@@ -41,17 +41,6 @@ contract PurchaseCoin is Initializable, PausableUpgradeable, AccessControlUpgrad
     IFidelityNFT fidelityNFT;
     address gnosisSafeWallet;
 
-    function setGnosisWallet(address _gnosisSafeWallet) external {
-        gnosisSafeWallet = _gnosisSafeWallet;
-    }
-    function setFidelityCoin(address _address)  external {
-        fidelityCoin = IFidelityCoin(_address);
-    }
-
-    function setFidelityNFT(address _address)  external {
-        fidelityNFT = IFidelityNFT(_address);
-    }
-
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
         _disableInitializers();
@@ -67,6 +56,21 @@ contract PurchaseCoin is Initializable, PausableUpgradeable, AccessControlUpgrad
         _grantRole(UPGRADER_ROLE, msg.sender);
     }
 
+    function contractVersion() public pure returns (uint256){
+        return 1;
+    }
+
+    function setGnosisWallet(address _gnosisSafeWallet) external {
+        gnosisSafeWallet = _gnosisSafeWallet;
+    }
+    function setFidelityCoin(address _address)  external {
+        fidelityCoin = IFidelityCoin(_address);
+    }
+
+    function setFidelityNFT(address _address)  external {
+        fidelityNFT = IFidelityNFT(_address);
+    }
+
     function pause() public onlyRole(PAUSER_ROLE) {
         _pause();
     }
@@ -74,12 +78,6 @@ contract PurchaseCoin is Initializable, PausableUpgradeable, AccessControlUpgrad
     function unpause() public onlyRole(PAUSER_ROLE) {
         _unpause();
     }
-
-    function _authorizeUpgrade(address newImplementation)
-        internal
-        onlyRole(UPGRADER_ROLE)
-        override
-    {}
 
     event DeliverNft(address winnerAccount, uint256 nftId);
     /**********************/
@@ -99,14 +97,14 @@ contract PurchaseCoin is Initializable, PausableUpgradeable, AccessControlUpgrad
         //console.log("Mint %s fidos",numFidos);
 
         //500 FIDO = 0.007814 ETH
-        uint256 ethers = numFidos * FIDO_VALUE_ETHER ;
+        uint256 ethersToPay = numFidos * FIDO_VALUE_ETHER ;
         //console.log("Transferring from to %s %s ethers", gnosisSafeWallet, ethers);
 
         //fidelityCoin.approve(address(this), ethers);
         //fidelityCoin.transferFrom(msg.sender,gnosisSafeWallet, ethers);
 
         (bool success, ) = payable(address(this)).call{
-            value: 0.001 ether,
+            value: ethersToPay,
             gas: 50000
         }("");
         require(success, "PurchaseCoin: Failed to send Ether");
@@ -153,7 +151,7 @@ contract PurchaseCoin is Initializable, PausableUpgradeable, AccessControlUpgrad
     struct NFT {
         uint256 price;  //PRECIO VENDIDO
         address address_owner;
-        bool isSold; //INDICA SI ESTA VENDIDO
+        bool isSold; //INDICA SI ESTA VENDIDO (FALSE IF CAN REDEEM)
     }
     uint256 totalOfNFT;
 
@@ -195,4 +193,10 @@ contract PurchaseCoin is Initializable, PausableUpgradeable, AccessControlUpgrad
     function getNftDetailById(uint256 _id) external view returns (NFT memory){        
         return nftsById[_id];        
      }
+
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        onlyRole(UPGRADER_ROLE)
+        override
+    {}
 }

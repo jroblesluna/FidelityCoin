@@ -3,6 +3,7 @@ pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 library Strings {
@@ -33,13 +34,11 @@ library Strings {
 }
 
 contract FidelityNFT is
-    ERC721Upgradeable,
-    AccessControlUpgradeable,
-    UUPSUpgradeable
+    Initializable, ERC721Upgradeable, AccessControlUpgradeable, UUPSUpgradeable
 {
-    function version() external pure returns (string memory) {
+    /*function version() external pure returns (string memory) {
         return "1.0";
-    }
+    }*/
 
     using Strings for uint256;
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -59,15 +58,20 @@ contract FidelityNFT is
         string memory _tokenIpfsCID,
         uint256 _tokenLastNftId
     ) public initializer {
-        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(MINTER_ROLE, msg.sender);
-        _grantRole(UPGRADER_ROLE, msg.sender);
-        _setIpfsCID(_tokenIpfsCID);
-        _setLastNftId(_tokenLastNftId);
-
         __ERC721_init(_tokenName, _tokenSymbol);
         __AccessControl_init();
         __UUPSUpgradeable_init();
+
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(MINTER_ROLE, msg.sender);
+        _grantRole(UPGRADER_ROLE, msg.sender);
+
+        _setIpfsCID(_tokenIpfsCID);
+        _setLastNftId(_tokenLastNftId);
+    }
+
+    function contractVersion() public pure returns (uint256){
+        return 1;
     }
 
     function _setIpfsCID(string memory _ipfsCID) internal {
@@ -144,7 +148,7 @@ contract FidelityNFT is
 
     function _authorizeUpgrade(address newImplementation)
         internal
-        override
         onlyRole(UPGRADER_ROLE)
+        override
     {}
 }

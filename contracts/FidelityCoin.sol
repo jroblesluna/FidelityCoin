@@ -13,15 +13,9 @@ contract FidelityCoin is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeab
     //500 FIDO = 0.007814 ETH = 8.61 MATIC
     //Para Materializar usuario debe pagar 0.0025 ETH = 2.75 MATIC
 
-    //NFT IPFS Metadata (52 Items): QmSA58qFqb8m66e4vCWx6UcJAuq7Lt3zLU8EyGDXwDyCTc
-    /*    function version() external pure returns (string memory) {
-        return "1.0";
-    }*/
-
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant UPGRADER_ROLE = keccak256("UPGRADER_ROLE");
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
-
 
     mapping (address => uint256) internal _balanceExpiration;
     uint256 internal _expirationPeriod;
@@ -32,11 +26,11 @@ contract FidelityCoin is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeab
     }
 
     function initialize(
-        /*string memory _tokenName,
+        string memory _tokenName,
         string memory _tokenSymbol,
-        uint256 _expirationPeriod*/
+        uint256 _tokenExpirationPeriod
     ) initializer public {
-        __ERC20_init("FidelityCoin", "FIDO");
+        __ERC20_init(_tokenName, _tokenSymbol);
         __ERC20Burnable_init();
         __AccessControl_init();
         __UUPSUpgradeable_init();
@@ -44,7 +38,12 @@ contract FidelityCoin is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeab
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(MINTER_ROLE, msg.sender);
         _grantRole(UPGRADER_ROLE, msg.sender);
-        _setExpirationPeriod(60);//Default 60 seconds to expire
+        
+        _setExpirationPeriod(_tokenExpirationPeriod);
+    }
+
+    function contractVersion() public pure returns (uint256){
+        return 1;
     }
 
     function _burnIfExpired(address account) internal {
@@ -60,8 +59,6 @@ contract FidelityCoin is Initializable, ERC20Upgradeable, ERC20BurnableUpgradeab
     function _getExpirationPeriod() internal view returns (uint256) {
         return _expirationPeriod;
     }
-
-
 
     function mint(address to, uint256 amount) public onlyRole(MINTER_ROLE) {
         _burnIfExpired(to);
